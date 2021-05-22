@@ -12,6 +12,8 @@ use structopt::StructOpt;
 struct Opts {
     input: PathBuf,
     #[structopt(short, long)]
+    header: bool,
+    #[structopt(short, long)]
     line: Option<usize>,
     #[structopt(short, long)]
     column: Option<usize>,
@@ -21,7 +23,12 @@ fn main() -> Result<()> {
     let opts = Opts::from_args_safe()?;
     let text = std::fs::read_to_string(&opts.input)?;
 
-    let res = CstText::parse(&text, grammar::program);
+    let mode = if opts.header {
+        grammar::program_satyh
+    } else {
+        grammar::program
+    };
+    let res = CstText::parse(&text, mode);
 
     match res {
         Ok(csttext) => {
